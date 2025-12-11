@@ -12,7 +12,8 @@ const Upload = () => {
   const [statusText, setStatusText] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
-  const { auth, isLoading, fs, ai, kv } = usePuterStore;
+  const { auth, isLoading, fs, ai, kv } = usePuterStore();
+
   const navigate = useNavigate();
 
   const handleFileSelect = (file: File | null) => {
@@ -32,17 +33,19 @@ const Upload = () => {
   }) => {
     setIsProcessing(true);
     setStatusText("Uploading the file ...");
-    const uploadedFile = await fs.upload([file]);
+    const uploadedFile = await fs.upload(file);
     if (!uploadedFile) return setStatusText("Error Failed to upload file");
 
     setStatusText("Converting to image ...");
     const imageFile = await convertPdfToImage(file);
 
-    if (!imageFile) return setStatusText("Error Failed to convert to image");
+    if (!imageFile || !imageFile.file) {
+      const errorMsg = imageFile?.error || "Failed to convert PDF to image";
+      return setStatusText(`Error: ${errorMsg}`);
+    }
 
     setStatusText("Uploading the image ...");
-
-    const uploadedImage = await fs.uplaod([imageFile.file]);
+    const uploadedImage = await fs.upload(imageFile.file);
     if (!uploadedImage) return setStatusText("Error Failed to upload to image");
 
     setStatusText("Preparing data ...");

@@ -15,7 +15,7 @@ declare global {
           data: string | File | Blob
         ) => Promise<File | undefined>;
         read: (path: string) => Promise<Blob>;
-        upload: (file: File[] | Blob[]) => Promise<FSItem>;
+        upload: (file: File | Blob) => Promise<FSItem>;
         delete: (path: string) => Promise<void>;
         readdir: (path: string) => Promise<FSItem[] | undefined>;
       };
@@ -61,7 +61,7 @@ interface PuterStore {
       data: string | File | Blob
     ) => Promise<File | undefined>;
     read: (path: string) => Promise<Blob | undefined>;
-    upload: (file: File[] | Blob[]) => Promise<FSItem | undefined>;
+    upload: (file: File | Blob) => Promise<FSItem | undefined>;
     delete: (path: string) => Promise<void>;
     readDir: (path: string) => Promise<FSItem[] | undefined>;
   };
@@ -292,13 +292,13 @@ export const usePuterStore = create<PuterStore>((set, get) => {
     return puter.fs.read(path);
   };
 
-  const upload = async (files: File[] | Blob[]) => {
+  const upload = async (file: File | Blob) => {
     const puter = getPuter();
     if (!puter) {
       setError("Puter.js not available");
       return;
     }
-    return puter.fs.upload(files);
+    return puter.fs.upload(file);
   };
 
   const deleteFile = async (path: string) => {
@@ -350,7 +350,7 @@ export const usePuterStore = create<PuterStore>((set, get) => {
           ],
         },
       ],
-      { model: "claude-sonnet-4" }
+      { model: "claude-3-7-sonnet" }
     ) as Promise<AIResponse | undefined>;
   };
 
@@ -428,7 +428,7 @@ export const usePuterStore = create<PuterStore>((set, get) => {
       write: (path: string, data: string | File | Blob) => write(path, data),
       read: (path: string) => readFile(path),
       readDir: (path: string) => readDir(path),
-      upload: (files: File[] | Blob[]) => upload(files),
+      upload: (file: File | Blob) => upload(file),
       delete: (path: string) => deleteFile(path),
     },
     ai: {
